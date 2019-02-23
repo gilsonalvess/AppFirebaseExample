@@ -12,4 +12,10 @@
         app:showAsAction="always"
         android:title="Excluir">
     </item>
+
+    <item
+        android:id="@+id/icon_save"
+        android:icon="@drawable/ic_save"
+        app:showAsAction="always"
+        android:title="Salvar"></item>
 </menu>

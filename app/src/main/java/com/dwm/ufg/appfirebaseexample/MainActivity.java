@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText nomeP, apelidoP, emailP, passwdP;
     ListView listV_pessoas;
+    Pessoa pessoaSelecionada;
 
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
@@ -43,8 +46,19 @@ public class MainActivity extends AppCompatActivity {
         passwdP = findViewById(R.id.id_text_senha);
 
         listV_pessoas = findViewById(R.id.id_listview);
-
         inicializeFirebase();
+        listaDados();
+
+        listV_pessoas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                pessoaSelecionada = (Pessoa) parent.getItemAtPosition(position);
+                nomeP.setText(pessoaSelecionada.getNome());
+                emailP.setText(pessoaSelecionada.getEmail());
+                apelidoP.setText(pessoaSelecionada.getApelido());
+                passwdP.setText(pessoaSelecionada.getPassword());
+            }
+        });
     }
 
     private void inicializeFirebase() {
@@ -70,16 +84,37 @@ public class MainActivity extends AppCompatActivity {
                     p.setUid(UUID.randomUUID().toString());
                     p.setNome(nome);
                     p.setEmail(email);
+                    p.setApelido(apelido);
                     p.setPassword(senha);
                     databaseReference.child("Pessoa").child(p.getUid()).setValue(p);
                     Toast.makeText(this, "Adicionado com sucesso", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
+            case R.id.icon_save: {
+                Pessoa p = new Pessoa();
+                p.setUid(pessoaSelecionada.getUid());
+                p.setNome(nome);
+                p.setEmail(email);
+                p.setApelido(apelido);
+                p.setPassword(senha);
+                databaseReference.child("Pessoa").child(p.getUid()).setValue(p);
+                Toast.makeText(this, "Pessoa alterada com sucesso!", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.icon_del: {
+                Pessoa p = new Pessoa();
+                p.setUid(pessoaSelecionada.getUid());
+                databaseReference.child("Pessoa").child(p.getUid()).removeValue();
+                Toast.makeText(this, "Pessoa alterada com sucesso!", Toast.LENGTH_SHORT).show();
+                limpaCampos();
+                break;
+            }
             default:
                 break;
         }
         limpaCampos();
+        listaDados();
         return true;
     }
 
@@ -127,8 +162,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
     private void limpaCampos() {
         nomeP.setText("");
