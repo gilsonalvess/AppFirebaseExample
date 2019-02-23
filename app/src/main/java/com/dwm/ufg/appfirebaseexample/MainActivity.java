@@ -24,13 +24,13 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     EditText nomeP, apelidoP, emailP, passwdP;
-    ListView listPessoas;
+    ListView listV_pessoas;
 
     FirebaseDatabase firebaseDatabase;
-    DatabaseReference dataBaseReference;
+    DatabaseReference databaseReference;
 
-    private List<Pessoa> pessoaList = new ArrayList<Pessoa>();
-    ArrayAdapter<Pessoa> arrayAdapter;
+    private List<Pessoa> listaPessoa = new ArrayList<Pessoa>();
+    ArrayAdapter<Pessoa> arrayAdapterPessoa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,15 +42,15 @@ public class MainActivity extends AppCompatActivity {
         emailP = findViewById(R.id.id_text_email);
         passwdP = findViewById(R.id.id_text_senha);
 
-        listPessoas = findViewById(R.id.id_listview);
+        listV_pessoas = findViewById(R.id.id_listview);
 
         inicializeFirebase();
     }
 
     private void inicializeFirebase() {
         FirebaseApp.initializeApp(this);
-        firebaseDatabase = firebaseDatabase.getInstance();
-        dataBaseReference = firebaseDatabase.getReference();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                     p.setNome(nome);
                     p.setEmail(email);
                     p.setPassword(senha);
-                    dataBaseReference.child("Pessoa").child(p.getUid()).setValue(p);
+                    databaseReference.child("Pessoa").child(p.getUid()).setValue(p);
                     Toast.makeText(this, "Adicionado com sucesso", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
             default:
                 break;
         }
+        limpaCampos();
         return true;
     }
 
@@ -109,24 +110,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void listaDados(){
-        dataBaseReference.child("Pessoa").addChildEventListener(new ValueEventListener() {
+    private void listaDados() {
+        databaseReference.child("Pessoa").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()){
-                    Pessoa p = dataSnapshot1.getValue(Pessoa.class);
-                    pessoaList.add(p);
+                listaPessoa.clear();
+                for(DataSnapshot objSnapshot: dataSnapshot.getChildren()){
+                    Pessoa p = objSnapshot.getValue(Pessoa.class);
+                    listaPessoa.add(p);
                 }
-                arrayAdapter = new ArrayAdapter<Pessoa>(MainActivity.this, android.R.layout.activity_list_item, pessoaList);
-                listPessoas.setAdapter(arrayAdapter);
+                arrayAdapterPessoa = new ArrayAdapter<Pessoa>(MainActivity.this, android.R.layout.simple_list_item_1,listaPessoa);
+                listV_pessoas.setAdapter(arrayAdapterPessoa);
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
     }
+
 
 
     private void limpaCampos() {
